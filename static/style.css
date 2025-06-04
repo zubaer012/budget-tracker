@@ -1,26 +1,38 @@
 body.bg-blur {
+  position: relative;
   background: url("https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=1600&q=80")
     no-repeat center center fixed;
   background-size: cover;
   min-height: 100vh;
   padding: 2rem 1rem;
-  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Dark overlay for background */
+body.bg-blur::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: -1;
 }
 
 .glass-card {
-  backdrop-filter: blur(12px) brightness(80%);
-  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.95);
+  color: white;
   height: 100%;
   padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 /* Control sections */
 .control-section {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 1.5rem;
 }
 
@@ -32,27 +44,27 @@ body.bg-blur {
 /* Form Controls */
 .form-control,
 .form-select {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.95);
+  color: white;
   transition: all 0.2s ease;
 }
 
 .form-control:focus,
 .form-select:focus {
-  background: rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
-  color: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: white;
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
 }
 
 .form-control::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* Fix for select dropdowns */
 .form-select {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.2);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
@@ -63,7 +75,7 @@ body.bg-blur {
 }
 
 .form-select:focus {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(255, 255, 255, 0.25);
 }
 
 .form-select option {
@@ -73,7 +85,7 @@ body.bg-blur {
 
 /* Stats */
 .glass-stat {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   transition: transform 0.2s;
@@ -90,21 +102,20 @@ body.bg-blur {
 
 /* Table */
 .glass-table {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .glass-table .table {
   margin-bottom: 0;
-  color: rgba(255, 255, 255, 0.95);
+  color: white;
 }
 
 .glass-table th {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
 }
 
 .glass-table td {
@@ -116,11 +127,11 @@ body.bg-blur {
 }
 
 .glass-table .table-success {
-  background: rgba(25, 135, 84, 0.25) !important;
+  background: rgba(40, 167, 69, 0.2) !important;
 }
 
 .glass-table .table-danger {
-  background: rgba(220, 53, 69, 0.25) !important;
+  background: rgba(220, 53, 69, 0.2) !important;
 }
 
 /* Text colors */
@@ -147,15 +158,15 @@ body.bg-blur {
 
 /* Buttons */
 .btn {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.95);
+  color: white;
   transition: all 0.2s ease;
   font-weight: 500;
 }
 
 .btn:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.4);
   color: white;
 }
