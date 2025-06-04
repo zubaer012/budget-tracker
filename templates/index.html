@@ -1,45 +1,216 @@
 {% extends "layout.html" %} {% block content %}
-<h2 class="text-center mb-4">💰 Budget Tracker</h2>
-<p class="text-center">
-  Balance: <strong>${{ "%.2f"|format(balance) }}</strong>
-</p>
+<div class="row g-4">
+  <!-- Left Panel - Controls -->
+  <div class="col-lg-5">
+    <div class="glass-card">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-center mb-0">💰 Budget Tracker</h2>
+        <form action="/reset" method="post" style="display: inline">
+          <button
+            type="submit"
+            class="btn btn-outline-danger btn-sm"
+            onclick="return confirm('⚠️ Warning: This will delete all your transactions and budget limits. This action cannot be undone. Are you sure?')"
+          >
+            <i class="fas fa-trash-alt"></i> Reset All
+          </button>
+        </form>
+      </div>
+      <p class="text-center mb-4">
+        Balance: <strong>${{ "%.2f"|format(balance) }}</strong>
+      </p>
 
-<form method="post" class="row g-2 mb-4">
-  <div class="col-md-4">
-    <input
-      type="number"
-      name="amount"
-      step="0.01"
-      class="form-control"
-      placeholder="Amount"
-      required
-    />
-  </div>
-  <div class="col-md-4">
-    <input
-      type="text"
-      name="category"
-      class="form-control"
-      placeholder="Category"
-      required
-    />
-  </div>
-  <div class="col-md-4">
-    <select name="type" class="form-select">
-      <option value="Income">Income</option>
-      <option value="Expense">Expense</option>
-    </select>
-  </div>
-  <div class="col-12 text-center">
-    <button class="btn btn-success w-100">Add Entry</button>
-  </div>
-</form>
+      {% if warnings %}
+      <div class="alert alert-warning mb-4">
+        {% for w in warnings %}
+        <div>{{ w }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
 
-<canvas id="expenseChart" height="200"></canvas>
+      <div class="control-section mb-4">
+        <h5 class="mb-3">View Month</h5>
+        <form method="get">
+          <div class="mb-3">
+            <input
+              type="month"
+              name="month"
+              id="month"
+              class="form-control"
+              value="{{ selected_month }}"
+            />
+          </div>
+          <button class="btn btn-primary w-100">Filter</button>
+        </form>
+      </div>
+
+      <div class="control-section mb-4">
+        <h5 class="mb-3">Add Transaction</h5>
+        <form method="post" class="row g-2">
+          <div class="col-md-4">
+            <input
+              type="number"
+              name="amount"
+              step="0.01"
+              class="form-control"
+              placeholder="Amount"
+              required
+            />
+          </div>
+          <div class="col-md-4">
+            <select name="category" class="form-select" required>
+              {% for cat in categories %}
+              <option value="{{ cat }}">{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-4">
+            <select name="type" class="form-select">
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-success w-100">Add Entry</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="control-section mb-4">
+        <h5 class="mb-3">Set Budget Limit</h5>
+        <form action="/set-limit" method="post" class="row g-2">
+          <div class="col-md-6">
+            <select name="limit_category" class="form-select" required>
+              {% for cat in categories %}
+              <option value="{{ cat }}">{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <input
+              type="number"
+              name="limit_amount"
+              class="form-control"
+              step="0.01"
+              placeholder="Limit $"
+              required
+            />
+          </div>
+          <div class="col-12">
+            <button class="btn btn-outline-light w-100">Save Limit</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="control-section">
+        <h5 class="mb-3">Monthly Overview</h5>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="glass-stat p-3 text-center">
+              <h6>Total Income</h6>
+              <h4 class="text-success">
+                ${{ "%.2f"|format(monthly_stats.income) }}
+              </h4>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="glass-stat p-3 text-center">
+              <h6>Total Expenses</h6>
+              <h4 class="text-danger">
+                ${{ "%.2f"|format(monthly_stats.expenses) }}
+              </h4>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="glass-stat p-3 text-center">
+              <h6>Savings</h6>
+              <h4 class="text-info">
+                ${{ "%.2f"|format(monthly_stats.savings) }}
+              </h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel - Visualization and History -->
+  <div class="col-lg-7">
+    <div class="glass-card">
+      <div class="visualization-section mb-4">
+        <h5 class="mb-3">Expense Distribution</h5>
+        <canvas id="expenseChart" height="300"></canvas>
+      </div>
+
+      <div class="history-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Transaction History</h5>
+          <a href="/export-csv" class="btn btn-outline-light btn-sm">
+            <i class="fas fa-download"></i> Export
+          </a>
+        </div>
+        <div class="mb-3">
+          <input
+            type="text"
+            id="searchTransactions"
+            class="form-control"
+            placeholder="Search transactions..."
+          />
+        </div>
+        <div class="table-responsive glass-table">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for entry in entries|sort(attribute='date', reverse=True) %}
+              <tr
+                class="{% if entry.type == 'Income' %}table-success{% else %}table-danger{% endif %}"
+              >
+                <td>{{ entry.date }}</td>
+                <td>{{ entry.category }}</td>
+                <td>{{ entry.type }}</td>
+                <td>${{ "%.2f"|format(entry.amount) }}</td>
+                <td>
+                  <form
+                    action="/delete-entry"
+                    method="post"
+                    style="display: inline"
+                  >
+                    <input
+                      type="hidden"
+                      name="entry_index"
+                      value="{{ loop.index0 }}"
+                    />
+                    <button
+                      type="submit"
+                      class="btn btn-outline-danger btn-sm"
+                      onclick="return confirm('Are you sure you want to delete this entry?')"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
 <script>
-  fetch("/chart-data")
+  // Chart.js code
+  fetch("/chart-data?month={{ selected_month }}")
     .then((res) => res.json())
     .then((data) => {
       const ctx = document.getElementById("expenseChart");
@@ -59,11 +230,50 @@
                 "#ffcd56",
                 "#4bc0c0",
                 "#9966ff",
+                "#e74c3c",
+                "#2ecc71",
+                "#9b59b6",
+                "#34495e",
+                "#f39c12",
               ],
             },
           ],
         },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        },
       });
     });
+
+  // Search functionality
+  document
+    .getElementById("searchTransactions")
+    .addEventListener("input", function (e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const rows = document.querySelectorAll("tbody tr");
+
+      rows.forEach((row) => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? "" : "none";
+      });
+    });
+
+  // Animate stats on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.style.transform = "translateY(0)";
+        entry.target.style.opacity = "1";
+      }
+    });
+  });
+
+  document.querySelectorAll(".glass-stat").forEach((stat) => {
+    stat.style.opacity = "0";
+    stat.style.transform = "translateY(20px)";
+    stat.style.transition = "all 0.3s ease-out";
+    observer.observe(stat);
+  });
 </script>
 {% endblock %}
